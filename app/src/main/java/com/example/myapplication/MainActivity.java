@@ -14,6 +14,12 @@ public class MainActivity extends LoggingActivity {
     private static final int REQUEST_CODE_CHEAT = 1;
 
     private static final String KEY_CURRENT_INDEX = "key_current_index";
+    private static final String KEY_IS_CHEATER = "key_is_cheater";
+    private static final String KEY_ARRAY_ANSWERS = "key_array_answers";
+    private static final String NO_ANSWER = "no_answer";
+    private static final String CORRECT_ANSWER = "correct_answer";
+    private static final String INCORRECT_ANSWER = "incorrect_answer";
+    private static final String CHEAT_ANSWER = "cheat_answer";
 
     private Question[] mQuestionBank = new Question[]{
             new Question(R.string.question_australia, true),
@@ -26,15 +32,24 @@ public class MainActivity extends LoggingActivity {
 
     private int mCurrentIndex = 0;
 
-    private boolean isCheater;
+    private boolean[] questionIsCheat = new boolean[mQuestionBank.length];
+
+    private String[] answers = new String[mQuestionBank.length];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        for (int pos = 0; pos < mQuestionBank.length; pos++ ){
+            answers[pos] = NO_ANSWER;
+        }
+
+
         if (savedInstanceState != null) {
             mCurrentIndex = savedInstanceState.getInt(KEY_CURRENT_INDEX);
+            questionIsCheat = savedInstanceState.getBooleanArray(KEY_IS_CHEATER);
+            answers = savedInstanceState.getStringArray(KEY_ARRAY_ANSWERS);
         }
 
         final TextView questionString = findViewById(R.id.question_string);
@@ -66,7 +81,6 @@ public class MainActivity extends LoggingActivity {
                 final Question currentQuestion = mQuestionBank[mCurrentIndex];
                 questionString.setText(currentQuestion.getQuestionResId());
 
-                isCheater = false;
             }
         });
 
@@ -80,13 +94,23 @@ public class MainActivity extends LoggingActivity {
                 startActivityForResult(intent, REQUEST_CODE_CHEAT);
             }
         });
+
+        Button statsButton = findViewById(R.id.stats_button);
+        statsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = StatsActivity.newIntent(MainActivity.this, answers);
+                startActivity(intent);
+            }
+        });
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == REQUEST_CODE_CHEAT) {
             if (resultCode == RESULT_OK && CheatActivity.correctAnswerWasShown(data)) {
-                isCheater = true;
+                questionIsCheat[mCurrentIndex] = true;
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -97,13 +121,15 @@ public class MainActivity extends LoggingActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_INDEX, mCurrentIndex);
+        outState.putBooleanArray(KEY_IS_CHEATER, questionIsCheat);
+        outState.putStringArray(KEY_ARRAY_ANSWERS,answers);
     }
 
     private void onButtonClicked(boolean answer) {
         Question currentQuestion = mQuestionBank[mCurrentIndex];
         int toastMessage;
 
-        if (isCheater) {
+        if (questionIsCheat[mCurrentIndex]) {
             toastMessage = R.string.judgment_toast;
         } else {
             toastMessage = (currentQuestion.isCorrectAnswer() == answer) ?
@@ -116,5 +142,15 @@ public class MainActivity extends LoggingActivity {
                 toastMessage,
                 Toast.LENGTH_SHORT
         ).show();
+
+        if (currentQuestion.isCorrectAnswer() == answer && questionIsCheat[mCurrentIndex] == false){
+            answers[mCurrentIndex] = CORRECT_ANSWER;
+        }
+        if (currentQuestion.isCorrectAnswer() != answer){
+            answers[mCurrentIndex] = INCORRECT_ANSWER;
+        }
+        if (questionIsCheat[mCurrentIndex] == true){
+            answers[mCurrentIndex] = CHEAT_ANSWER;
+        }
     }
 }
