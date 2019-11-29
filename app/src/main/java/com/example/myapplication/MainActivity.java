@@ -15,6 +15,10 @@ public class MainActivity extends LoggingActivity {
 
     private static final String KEY_CURRENT_INDEX = "key_current_index";
     private static final String KEY_IS_CHEATER = "key_is_cheater";
+    private static final String KEY_ARRAY_ANSWERS = "key_array_answers";
+    private static final String NO_ANSWER = "no_answer";
+    private static final String CORRECT_ANSWER = "correct_answer";
+    private static final String INCORRECT_ANSWER = "incorrect_answer";
 
     private Question[] mQuestionBank = new Question[]{
             new Question(R.string.question_australia, true),
@@ -29,15 +33,22 @@ public class MainActivity extends LoggingActivity {
 
     private boolean[] questionIsCheat = new boolean[mQuestionBank.length];
 
+    private String[] answers = new String[mQuestionBank.length];
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        for (int pos = 0; pos < mQuestionBank.length; pos++ ){
+            answers[pos] = NO_ANSWER;
+        }
+
 
         if (savedInstanceState != null) {
             mCurrentIndex = savedInstanceState.getInt(KEY_CURRENT_INDEX);
             questionIsCheat = savedInstanceState.getBooleanArray(KEY_IS_CHEATER);
+            answers = savedInstanceState.getStringArray(KEY_ARRAY_ANSWERS);
         }
 
         final TextView questionString = findViewById(R.id.question_string);
@@ -87,7 +98,7 @@ public class MainActivity extends LoggingActivity {
         statsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, StatsActivity.class);
+                Intent intent = StatsActivity.newIntent(MainActivity.this, answers);
                 startActivity(intent);
             }
         });
@@ -110,6 +121,7 @@ public class MainActivity extends LoggingActivity {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_INDEX, mCurrentIndex);
         outState.putBooleanArray(KEY_IS_CHEATER, questionIsCheat);
+        outState.putStringArray(KEY_ARRAY_ANSWERS,answers);
     }
 
     private void onButtonClicked(boolean answer) {
@@ -129,5 +141,11 @@ public class MainActivity extends LoggingActivity {
                 toastMessage,
                 Toast.LENGTH_SHORT
         ).show();
+
+        if (currentQuestion.isCorrectAnswer() == answer){
+            answers[mCurrentIndex] = CORRECT_ANSWER;
+        } else {
+            answers[mCurrentIndex] = INCORRECT_ANSWER;
+        }
     }
 }
