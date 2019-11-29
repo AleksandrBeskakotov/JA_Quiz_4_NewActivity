@@ -12,6 +12,7 @@ public class StatsActivity extends AppCompatActivity {
     private static final String KEY_STATS_ARRAY = "key_stats_array";
     private static final String CORRECT_ANSWER = "correct_answer";
     private static final String INCORRECT_ANSWER = "incorrect_answer";
+    private static final String CHEAT_ANSWER = "cheat_answer";
 
     private TextView mStatsTextView;
 
@@ -24,6 +25,7 @@ public class StatsActivity extends AppCompatActivity {
 
         int numberOfAnswers = 0;
         int numberOfCorrectAnswers = 0;
+        int numberOfCheatAnswers = 0;
         int numberOfQuestions = answers.length;
 
         for (int pos = 0; pos < answers.length; pos++){
@@ -33,12 +35,16 @@ public class StatsActivity extends AppCompatActivity {
             if (answers[pos].equals(CORRECT_ANSWER) ){
                 numberOfCorrectAnswers++;
             }
+            if (answers[pos].equals(CHEAT_ANSWER) ){
+                numberOfCheatAnswers++;
+            }
         }
 
         mStatsTextView = (TextView) findViewById(R.id.stats_info);
 
-        mStatsTextView.setText(String.format("Answered %d/%d questions\n " +
-                "Correct answers: %d", numberOfAnswers, numberOfQuestions, numberOfCorrectAnswers));
+        mStatsTextView.setText(String.format("Answered %d/%d questions\n" +
+                "Correct answers: %d\n" +
+                "Cheating answers: %d", numberOfAnswers, numberOfQuestions, numberOfCorrectAnswers, numberOfCheatAnswers));
 
     }
 

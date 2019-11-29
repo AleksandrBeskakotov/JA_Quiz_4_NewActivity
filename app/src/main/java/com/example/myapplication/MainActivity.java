@@ -19,6 +19,7 @@ public class MainActivity extends LoggingActivity {
     private static final String NO_ANSWER = "no_answer";
     private static final String CORRECT_ANSWER = "correct_answer";
     private static final String INCORRECT_ANSWER = "incorrect_answer";
+    private static final String CHEAT_ANSWER = "cheat_answer";
 
     private Question[] mQuestionBank = new Question[]{
             new Question(R.string.question_australia, true),
@@ -142,10 +143,14 @@ public class MainActivity extends LoggingActivity {
                 Toast.LENGTH_SHORT
         ).show();
 
-        if (currentQuestion.isCorrectAnswer() == answer){
+        if (currentQuestion.isCorrectAnswer() == answer && questionIsCheat[mCurrentIndex] == false){
             answers[mCurrentIndex] = CORRECT_ANSWER;
-        } else {
+        }
+        if (currentQuestion.isCorrectAnswer() != answer){
             answers[mCurrentIndex] = INCORRECT_ANSWER;
+        }
+        if (questionIsCheat[mCurrentIndex] == true){
+            answers[mCurrentIndex] = CHEAT_ANSWER;
         }
     }
 }
