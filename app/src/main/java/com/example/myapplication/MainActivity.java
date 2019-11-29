@@ -14,6 +14,7 @@ public class MainActivity extends LoggingActivity {
     private static final int REQUEST_CODE_CHEAT = 1;
 
     private static final String KEY_CURRENT_INDEX = "key_current_index";
+    private static final String KEY_IS_CHEATER = "key_is_cheater";
 
     private Question[] mQuestionBank = new Question[]{
             new Question(R.string.question_australia, true),
@@ -35,6 +36,7 @@ public class MainActivity extends LoggingActivity {
 
         if (savedInstanceState != null) {
             mCurrentIndex = savedInstanceState.getInt(KEY_CURRENT_INDEX);
+            isCheater = savedInstanceState.getBoolean(KEY_IS_CHEATER);
         }
 
         final TextView questionString = findViewById(R.id.question_string);
@@ -97,6 +99,7 @@ public class MainActivity extends LoggingActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_INDEX, mCurrentIndex);
+        outState.putBoolean(KEY_IS_CHEATER, isCheater);
     }
 
     private void onButtonClicked(boolean answer) {
